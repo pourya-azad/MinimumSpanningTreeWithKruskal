@@ -1,0 +1,15 @@
+﻿@model MinimumSpanningTreeWithKruskal.Models.GraphInputModel
+@{
+    ViewData["Title"] = "Graph Input";
+}
+
+<h2>وارد کردن گراف (JSON)</h2>
+
+@using (Html.BeginForm("Index", "Graph", FormMethod.Post))
+{
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+    @Html.TextAreaFor(m => m.JsonData, new { style = "width:100%;height:200px;" })
+    <div class="text-danger">@Html.ValidationMessageFor(m => m.JsonData)</div>
+    <br />
+    <button type="submit">ارسال</button>
+}

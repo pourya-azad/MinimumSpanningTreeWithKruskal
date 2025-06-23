@@ -1,0 +1,52 @@
+﻿@model MinimumSpanningTreeWithKruskal.ViewModel.GraphViewModel
+
+@{
+    Layout = null;
+
+    // Serialize nodes as: { id: ..., label: ... }
+    var nodesJson = System.Text.Json.JsonSerializer.Serialize(
+        Model.Nodes.Select(n => new { id = n.Id, label = n.Label })
+    );
+
+    // Serialize edges as: { from: ..., to: ..., label: ..., color: { color: ... } }
+    var edgesJson = System.Text.Json.JsonSerializer.Serialize(
+        Model.Edges.Select(e => new
+        {
+            from = e.SourceId,
+            to = e.TargetId,
+            label = e.Weight.ToString(),
+            color = new
+            {
+                color = Model.MSTEdges.Any(me => me.Id == e.Id) ? "red" : "gray"
+            }
+        })
+    );
+}
+
+<h2>گراف و درخت پوشای کمینه</h2>
+
+<form method="post" action="@Url.Action("Compute")">
+    <button type="submit">محاسبه و ذخیره MST</button>
+</form>
+
+<div id="mynetwork" style="width: 800px; height: 600px; border:1px solid lightgray;"></div>
+
+<script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
+<script>
+    const nodesData = new vis.DataSet(@Html.Raw(nodesJson));
+    const edgesData = new vis.DataSet(@Html.Raw(edgesJson));
+
+    const container = document.getElementById('mynetwork');
+    const data = {
+      nodes: nodesData,
+      edges: edgesData
+    };
+    const options = {
+      edges: {
+        arrows: {
+          to: { enabled: true, scaleFactor: 0.5 }
+        }
+      }
+    };
+    new vis.Network(container, data, options);
+</script>
