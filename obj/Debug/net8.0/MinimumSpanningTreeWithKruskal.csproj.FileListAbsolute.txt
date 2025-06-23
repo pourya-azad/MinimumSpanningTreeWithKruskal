@@ -170,4 +170,5 @@ C:\Users\ARTA\Desktop\Map\MinimumSpanningTreeWithKruskal\MinimumSpanningTreeWith
 C:\Users\ARTA\Desktop\Map\MinimumSpanningTreeWithKruskal\MinimumSpanningTreeWithKruskal\bin\Debug\net8.0\tr\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
 C:\Users\ARTA\Desktop\Map\MinimumSpanningTreeWithKruskal\MinimumSpanningTreeWithKruskal\bin\Debug\net8.0\zh-Hans\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
 C:\Users\ARTA\Desktop\Map\MinimumSpanningTreeWithKruskal\MinimumSpanningTreeWithKruskal\bin\Debug\net8.0\zh-Hant\Microsoft.CodeAnalysis.Workspaces.MSBuild.BuildHost.resources.dll
+C:\Users\ARTA\Desktop\Map\MinimumSpanningTreeWithKruskal\MinimumSpanningTreeWithKruskal\bin\Debug\net8.0\Microsoft.AspNetCore.Identity.EntityFrameworkCore.dll
 C:\Users\ARTA\Desktop\Map\MinimumSpanningTreeWithKruskal\MinimumSpanningTreeWithKruskal\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt

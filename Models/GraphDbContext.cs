@@ -1,8 +1,9 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 
 namespace MinimumSpanningTreeWithKruskal.Models
 {
-    public class GraphDbContext : DbContext
+    public class GraphDbContext : IdentityDbContext<ApplicationUser>
     {
         public GraphDbContext(DbContextOptions<GraphDbContext> options) : base(options)
         {
@@ -14,6 +15,7 @@ namespace MinimumSpanningTreeWithKruskal.Models
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
             // رابطه Node1
             modelBuilder.Entity<Edge>()
                 .HasOne(e => e.Node1)

@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 using MinimumSpanningTreeWithKruskal.Models;
 using MinimumSpanningTreeWithKruskal.Services;
 // Add the required NuGet package reference for EF Core In-Memory Database:
@@ -9,6 +10,9 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddDbContext<GraphDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+    .AddEntityFrameworkStores<GraphDbContext>()
+    .AddDefaultTokenProviders();
 builder.Services.AddScoped<GraphService>();
 builder.Services.AddControllersWithViews();
 
@@ -26,6 +30,7 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(
