@@ -29,22 +29,22 @@ namespace MinimumSpanningTreeWithKruskal.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    SourceId = table.Column<int>(type: "int", nullable: false),
-                    TargetId = table.Column<int>(type: "int", nullable: false),
+                    Node1Id = table.Column<int>(type: "int", nullable: false),
+                    Node2Id = table.Column<int>(type: "int", nullable: false),
                     Weight = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Edges", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Edges_Nodes_SourceId",
-                        column: x => x.SourceId,
+                        name: "FK_Edges_Nodes_Node1Id",
+                        column: x => x.Node1Id,
                         principalTable: "Nodes",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Edges_Nodes_TargetId",
-                        column: x => x.TargetId,
+                        name: "FK_Edges_Nodes_Node2Id",
+                        column: x => x.Node2Id,
                         principalTable: "Nodes",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
@@ -70,14 +70,14 @@ namespace MinimumSpanningTreeWithKruskal.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Edges_SourceId",
+                name: "IX_Edges_Node1Id",
                 table: "Edges",
-                column: "SourceId");
+                column: "Node1Id");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Edges_TargetId",
+                name: "IX_Edges_Node2Id",
                 table: "Edges",
-                column: "TargetId");
+                column: "Node2Id");
 
             migrationBuilder.CreateIndex(
                 name: "IX_MSTEdges_EdgeId",

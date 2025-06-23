@@ -17,13 +17,13 @@ namespace MinimumSpanningTreeWithKruskal.Controllers
             _service = service;
         }
 
-        // ۱. نمایش فرم دریافت گراف (مثلاً JSON)
+        // ۱. نمایش فرم دریافت گراف
         public ActionResult Index()
         {
             return View();
         }
 
-        // ۲. دریافت و ذخیرهٔ گراف
+        // ۲. دریافت و ذخیره گراف
         [HttpPost]
         public ActionResult Index(GraphInputModel model)
         {
@@ -39,7 +39,7 @@ namespace MinimumSpanningTreeWithKruskal.Controllers
             try
             {
                 var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-                input = System.Text.Json.JsonSerializer.Deserialize<GraphData>(model.JsonData, options);
+                input = JsonSerializer.Deserialize<GraphData>(model.JsonData, options);
                 if (input is null)
                 {
                     ModelState.AddModelError("JsonData", "JSON نامعتبر است.");
@@ -75,9 +75,10 @@ namespace MinimumSpanningTreeWithKruskal.Controllers
                 }
             }
 
-            // پاک کردن دیتابیس
+            // پاک‌سازی دیتابیس
             _db.Nodes.RemoveRange(_db.Nodes);
             _db.Edges.RemoveRange(_db.Edges);
+            _db.MSTEdges.RemoveRange(_db.MSTEdges);
             _db.SaveChanges();
 
             // ذخیره نودها
@@ -90,21 +91,31 @@ namespace MinimumSpanningTreeWithKruskal.Controllers
             // نگاشت لیبل به Id
             var map = _db.Nodes.ToDictionary(n => n.Label, n => n.Id, StringComparer.OrdinalIgnoreCase);
 
-            // ذخیره یال‌ها
+            // ذخیره یال‌ها — بدون جهت و بدون تکرار
+            var addedEdges = new HashSet<(int, int)>();
             foreach (var e in input.Edges)
             {
-                _db.Edges.Add(new Edge
+                int id1 = map[e.Source];
+                int id2 = map[e.Target];
+                int node1Id = Math.Min(id1, id2);
+                int node2Id = Math.Max(id1, id2);
+
+                var edgeKey = (node1Id, node2Id);
+                if (!addedEdges.Contains(edgeKey))
                 {
-                    SourceId = map[e.Source],
-                    TargetId = map[e.Target],
-                    Weight = e.Weight
-                });
+                    _db.Edges.Add(new Edge
+                    {
+                        Node1Id = node1Id,
+                        Node2Id = node2Id,
+                        Weight = e.Weight
+                    });
+                    addedEdges.Add(edgeKey);
+                }
             }
             _db.SaveChanges();
 
             return RedirectToAction("Show");
         }
-
 
         // ۳. نمایش گراف و MST
         public ActionResult Show()

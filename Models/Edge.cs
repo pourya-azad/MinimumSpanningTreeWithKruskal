@@ -6,15 +6,16 @@ namespace MinimumSpanningTreeWithKruskal.Models
     {
         public int Id { get; set; }
 
-        public int SourceId { get; set; }
-        public int TargetId { get; set; }
+        public int Node1Id { get; set; }
+        public int Node2Id { get; set; }
         public int Weight { get; set; }
 
-        [ForeignKey(nameof(SourceId))]
-        public virtual Node? Source { get; set; }
+        [ForeignKey(nameof(Node1Id))]
+        public virtual Node? Node1 { get; set; }
 
-        [ForeignKey(nameof(TargetId))]
-        public virtual Node? Target { get; set; }
+        [ForeignKey(nameof(Node2Id))]
+        public virtual Node? Node2 { get; set; }
     }
+
 
 }

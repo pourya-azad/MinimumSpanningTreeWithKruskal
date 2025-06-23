@@ -2,12 +2,13 @@
 {
     public class Node
     {
-        public int Id { get; set; } // حذف required
+        public int Id { get; set; }
+        public required string Label { get; set; }
 
-        public required string Label { get; set; } // اگه مطمئنی همیشه داده داره، بذار بمونه
-
-        public virtual ICollection<Edge> OutgoingEdges { get; set; } = new List<Edge>();
-        public virtual ICollection<Edge> IncomingEdges { get; set; } = new List<Edge>();
+        // Optional: برای رابطه دوطرفه با Edge
+        public virtual ICollection<Edge> EdgesAsNode1 { get; set; } = new List<Edge>();
+        public virtual ICollection<Edge> EdgesAsNode2 { get; set; } = new List<Edge>();
     }
+
 
 }

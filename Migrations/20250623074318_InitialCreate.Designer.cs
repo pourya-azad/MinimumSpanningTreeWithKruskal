@@ -11,7 +11,7 @@ using MinimumSpanningTreeWithKruskal.Models;
 namespace MinimumSpanningTreeWithKruskal.Migrations
 {
     [DbContext(typeof(GraphDbContext))]
-    [Migration("20250623063155_InitialCreate")]
+    [Migration("20250623074318_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -32,10 +32,10 @@ namespace MinimumSpanningTreeWithKruskal.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int>("SourceId")
+                    b.Property<int>("Node1Id")
                         .HasColumnType("int");
 
-                    b.Property<int>("TargetId")
+                    b.Property<int>("Node2Id")
                         .HasColumnType("int");
 
                     b.Property<int>("Weight")
@@ -43,9 +43,9 @@ namespace MinimumSpanningTreeWithKruskal.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("SourceId");
+                    b.HasIndex("Node1Id");
 
-                    b.HasIndex("TargetId");
+                    b.HasIndex("Node2Id");
 
                     b.ToTable("Edges");
                 });
@@ -87,21 +87,21 @@ namespace MinimumSpanningTreeWithKruskal.Migrations
 
             modelBuilder.Entity("MinimumSpanningTreeWithKruskal.Models.Edge", b =>
                 {
-                    b.HasOne("MinimumSpanningTreeWithKruskal.Models.Node", "Source")
-                        .WithMany("OutgoingEdges")
-                        .HasForeignKey("SourceId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("MinimumSpanningTreeWithKruskal.Models.Node", "Target")
-                        .WithMany("IncomingEdges")
-                        .HasForeignKey("TargetId")
+                    b.HasOne("MinimumSpanningTreeWithKruskal.Models.Node", "Node1")
+                        .WithMany("EdgesAsNode1")
+                        .HasForeignKey("Node1Id")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.Navigation("Source");
+                    b.HasOne("MinimumSpanningTreeWithKruskal.Models.Node", "Node2")
+                        .WithMany("EdgesAsNode2")
+                        .HasForeignKey("Node2Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
 
-                    b.Navigation("Target");
+                    b.Navigation("Node1");
+
+                    b.Navigation("Node2");
                 });
 
             modelBuilder.Entity("MinimumSpanningTreeWithKruskal.Models.MSTEdge", b =>
@@ -117,9 +117,9 @@ namespace MinimumSpanningTreeWithKruskal.Migrations
 
             modelBuilder.Entity("MinimumSpanningTreeWithKruskal.Models.Node", b =>
                 {
-                    b.Navigation("IncomingEdges");
+                    b.Navigation("EdgesAsNode1");
 
-                    b.Navigation("OutgoingEdges");
+                    b.Navigation("EdgesAsNode2");
                 });
 #pragma warning restore 612, 618
         }

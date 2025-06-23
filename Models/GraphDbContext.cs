@@ -14,26 +14,27 @@ namespace MinimumSpanningTreeWithKruskal.Models
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            // پیکربندی رابطه بین Edge و Node برای Source
+            // رابطه Node1
             modelBuilder.Entity<Edge>()
-                .HasOne(e => e.Source)
-                .WithMany(n => n.OutgoingEdges)
-                .HasForeignKey(e => e.SourceId)
-                .OnDelete(DeleteBehavior.Cascade); // یا DeleteBehavior.Restrict بسته به نیاز
+                .HasOne(e => e.Node1)
+                .WithMany(n => n.EdgesAsNode1)
+                .HasForeignKey(e => e.Node1Id)
+                .OnDelete(DeleteBehavior.Restrict);
 
-            // پیکربندی رابطه بین Edge و Node برای Target
+            // رابطه Node2
             modelBuilder.Entity<Edge>()
-                .HasOne(e => e.Target)
-                .WithMany(n => n.IncomingEdges)
-                .HasForeignKey(e => e.TargetId)
-                .OnDelete(DeleteBehavior.Restrict); // یا DeleteBehavior.Restrict بسته به نیاز
+                .HasOne(e => e.Node2)
+                .WithMany(n => n.EdgesAsNode2)
+                .HasForeignKey(e => e.Node2Id)
+                .OnDelete(DeleteBehavior.Restrict);
 
-            // پیکربندی رابطه بین MSTEdge و Edge
+            // رابطه MSTEdge
             modelBuilder.Entity<MSTEdge>()
                 .HasOne(me => me.Edge)
-                .WithMany() // اگر Edge رابطه‌ای به MSTEdge ندارد، خالی بگذارید
+                .WithMany()
                 .HasForeignKey(me => me.EdgeId)
-                .OnDelete(DeleteBehavior.Cascade); // یا DeleteBehavior.Restrict بسته به نیاز
+                .OnDelete(DeleteBehavior.Cascade);
         }
+
     }
 }

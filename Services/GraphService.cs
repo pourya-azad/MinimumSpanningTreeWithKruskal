@@ -11,13 +11,11 @@ namespace MinimumSpanningTreeWithKruskal.Services
         public IList<Edge> ComputeMST()
         {
             var edges = _db.Edges
-                .Include(e => e.Source)
-                .Include(e => e.Target)
+                .Include(e => e.Node1)
+                .Include(e => e.Node2)
                 .ToList()
                 .OrderBy(e => e.Weight)
                 .ToList();
-
-
 
             var nodes = _db.Nodes.Select(n => n.Id).ToList();
             var index = nodes.Select((id, idx) => new { id, idx })
@@ -28,12 +26,13 @@ namespace MinimumSpanningTreeWithKruskal.Services
 
             foreach (var e in edges)
             {
-                if (ds.Union(index[e.SourceId], index[e.TargetId]))
+                if (ds.Union(index[e.Node1Id], index[e.Node2Id]))
                     mst.Add(e);
             }
 
             return mst;
         }
+
 
         public void SaveMST(IList<Edge> mst)
         {
