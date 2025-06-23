@@ -17,13 +17,8 @@ namespace MinimumSpanningTreeWithKruskal.Controllers
             _service = service;
         }
 
-        // ۱. نمایش فرم دریافت گراف
-        public ActionResult Index()
-        {
-            return View();
-        }
+        public ActionResult Index() => View();
 
-        // ۲. دریافت و ذخیره گراف
         [HttpPost]
         public ActionResult Index(GraphInputModel model)
         {
@@ -32,8 +27,6 @@ namespace MinimumSpanningTreeWithKruskal.Controllers
                 ModelState.AddModelError("JsonData", "JSON نمی‌تواند خالی باشد.");
                 return View(model);
             }
-
-            Console.WriteLine($"JsonData: {model.JsonData}");
 
             GraphData input;
             try
@@ -45,71 +38,57 @@ namespace MinimumSpanningTreeWithKruskal.Controllers
                     ModelState.AddModelError("JsonData", "JSON نامعتبر است.");
                     return View(model);
                 }
-
-                Console.WriteLine("Edges after deserialization:");
-                foreach (var edge in input.Edges)
-                {
-                    Console.WriteLine($"Source: '{edge.Source}', Target: '{edge.Target}', Weight: {edge.Weight}");
-                }
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"Deserialization error: {ex.Message}");
                 ModelState.AddModelError("JsonData", $"خطا در پردازش JSON: {ex.Message}");
                 return View(model);
             }
 
-            // اعتبارسنجی نودها و یال‌ها
-            var nodeSet = input.Nodes.ToHashSet(StringComparer.OrdinalIgnoreCase);
+            var nodeSet = input.Nodes.Select(n => n.Label).ToHashSet(StringComparer.OrdinalIgnoreCase);
             foreach (var edge in input.Edges)
             {
-                if (string.IsNullOrEmpty(edge.Source) || string.IsNullOrEmpty(edge.Target))
-                {
-                    ModelState.AddModelError("JsonData", $"یال شامل Source یا Target خالی است: Source='{edge.Source}', Target='{edge.Target}'");
-                    return View(model);
-                }
                 if (!nodeSet.Contains(edge.Source) || !nodeSet.Contains(edge.Target))
                 {
-                    ModelState.AddModelError("JsonData", $"یال با Source '{edge.Source}' یا Target '{edge.Target}' به نود ناموجود اشاره می‌کند.");
+                    ModelState.AddModelError("JsonData", $"یال به نود ناموجود اشاره می‌کند: {edge.Source}-{edge.Target}");
                     return View(model);
                 }
             }
 
-            // پاک‌سازی دیتابیس
             _db.Nodes.RemoveRange(_db.Nodes);
             _db.Edges.RemoveRange(_db.Edges);
             _db.MSTEdges.RemoveRange(_db.MSTEdges);
             _db.SaveChanges();
 
             // ذخیره نودها
-            foreach (var label in input.Nodes.Distinct())
-                _db.Nodes.Add(new Node { Label = label });
+            var labelToNode = new Dictionary<string, Node>(StringComparer.OrdinalIgnoreCase);
+            foreach (var node in input.Nodes.DistinctBy(n => n.Label))
+            {
+                var newNode = new Node { Label = node.Label };
+                _db.Nodes.Add(newNode);
+                labelToNode[node.Label] = newNode;
+            }
             _db.SaveChanges();
 
-            Console.WriteLine($"Nodes saved: {_db.Nodes.Count()}");
-
-            // نگاشت لیبل به Id
-            var map = _db.Nodes.ToDictionary(n => n.Label, n => n.Id, StringComparer.OrdinalIgnoreCase);
-
-            // ذخیره یال‌ها — بدون جهت و بدون تکرار
+            // ذخیره یال‌ها
             var addedEdges = new HashSet<(int, int)>();
             foreach (var e in input.Edges)
             {
-                int id1 = map[e.Source];
-                int id2 = map[e.Target];
-                int node1Id = Math.Min(id1, id2);
-                int node2Id = Math.Max(id1, id2);
+                var node1 = labelToNode[e.Source];
+                var node2 = labelToNode[e.Target];
+                int id1 = node1.Id;
+                int id2 = node2.Id;
 
-                var edgeKey = (node1Id, node2Id);
-                if (!addedEdges.Contains(edgeKey))
+                var key = (Math.Min(id1, id2), Math.Max(id1, id2));
+                if (!addedEdges.Contains(key))
                 {
                     _db.Edges.Add(new Edge
                     {
-                        Node1Id = node1Id,
-                        Node2Id = node2Id,
+                        Node1Id = key.Item1,
+                        Node2Id = key.Item2,
                         Weight = e.Weight
                     });
-                    addedEdges.Add(edgeKey);
+                    addedEdges.Add(key);
                 }
             }
             _db.SaveChanges();
@@ -117,7 +96,6 @@ namespace MinimumSpanningTreeWithKruskal.Controllers
             return RedirectToAction("Show");
         }
 
-        // ۳. نمایش گراف و MST
         public ActionResult Show()
         {
             var nodes = _db.Nodes.ToList();
@@ -133,7 +111,6 @@ namespace MinimumSpanningTreeWithKruskal.Controllers
             return View(vm);
         }
 
-        // ۴. محاسبه و ذخیرهٔ MST
         [HttpPost]
         public ActionResult Compute()
         {

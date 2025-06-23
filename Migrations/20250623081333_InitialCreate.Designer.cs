@@ -11,7 +11,7 @@ using MinimumSpanningTreeWithKruskal.Models;
 namespace MinimumSpanningTreeWithKruskal.Migrations
 {
     [DbContext(typeof(GraphDbContext))]
-    [Migration("20250623074318_InitialCreate")]
+    [Migration("20250623081333_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />

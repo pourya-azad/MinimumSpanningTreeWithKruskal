@@ -13,5 +13,11 @@
         public int Weight { get; set; }
     }
 
+    public class NodeInput
+    {
+        public int Id { get; set; }
+        public string Label { get; set; } = string.Empty;
+    }
+
     // در اکشنِ POST: var model = JsonConvert.DeserializeObject<GraphInputModel>(model.JsonData);
 }

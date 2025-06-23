@@ -20,10 +20,11 @@
             color = Model.MSTEdges.Any(me => me.Id == e.Id) ? "red" : "gray"
         }
     })
-    );
+        );
+
 }
 
-<h2>گراف بدون جهت و درخت پوشای کمینه</h2>
+<h2>گراف و درخت پوشای کمینه</h2>
 
 <form method="post" action="@Url.Action("Compute")">
     <button type="submit">محاسبه و ذخیره MST</button>
