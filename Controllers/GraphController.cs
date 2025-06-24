@@ -15,6 +15,7 @@ namespace MinimumSpanningTreeWithKruskal.Controllers
         private readonly GraphDbContext _db;
         private readonly GraphService _service;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly GraphValidator _validator = new GraphValidator();
 
         public GraphController(GraphDbContext db, GraphService service, UserManager<ApplicationUser> userManager)
         {
@@ -64,11 +65,6 @@ namespace MinimumSpanningTreeWithKruskal.Controllers
             {
                 var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
                 input = JsonSerializer.Deserialize<GraphData>(model.JsonData, options);
-                if (input is null)
-                {
-                    ModelState.AddModelError("", "فرمت JSON نامعتبر است.");
-                    return View(model);
-                }
             }
             catch (Exception ex)
             {
@@ -76,47 +72,12 @@ namespace MinimumSpanningTreeWithKruskal.Controllers
                 return View(model);
             }
 
-            // اعتبارسنجی‌های سفارشی
-            if (string.IsNullOrWhiteSpace(input.GraphName))
+            var errors = _validator.Validate(input);
+            if (errors.Any())
             {
-                ModelState.AddModelError("", "نام گراف الزامی است.");
+                foreach (var err in errors)
+                    ModelState.AddModelError("", err);
                 return View(model);
-            }
-            if (input.Nodes == null || input.Nodes.Count < 1)
-            {
-                ModelState.AddModelError("", "حداقل یک نود باید وارد شود.");
-                return View(model);
-            }
-            if (input.Edges == null || input.Edges.Count < 1)
-            {
-                ModelState.AddModelError("", "حداقل یک یال باید وارد شود.");
-                return View(model);
-            }
-            foreach (var node in input.Nodes)
-            {
-                if (string.IsNullOrWhiteSpace(node.Label))
-                {
-                    ModelState.AddModelError("", "برچسب نود الزامی است.");
-                    return View(model);
-                }
-            }
-            foreach (var edge in input.Edges)
-            {
-                if (string.IsNullOrWhiteSpace(edge.Source))
-                {
-                    ModelState.AddModelError("", "مبدأ یال الزامی است.");
-                    return View(model);
-                }
-                if (string.IsNullOrWhiteSpace(edge.Target))
-                {
-                    ModelState.AddModelError("", "مقصد یال الزامی است.");
-                    return View(model);
-                }
-                if (edge.Weight < 1)
-                {
-                    ModelState.AddModelError("", "وزن یال باید مثبت باشد.");
-                    return View(model);
-                }
             }
 
             // اعتبارسنجی متصل بودن گراف

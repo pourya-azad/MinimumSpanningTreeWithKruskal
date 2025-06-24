@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("MinimumSpanningTreeWithKruskal")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+179b62f4a45a59d9796cf6d8dfa46da1008426fe")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+d6539f05b61d1063a374d5e8696b88eefbe8f239")]
 [assembly: System.Reflection.AssemblyProductAttribute("MinimumSpanningTreeWithKruskal")]
 [assembly: System.Reflection.AssemblyTitleAttribute("MinimumSpanningTreeWithKruskal")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
