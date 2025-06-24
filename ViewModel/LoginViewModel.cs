@@ -4,11 +4,12 @@ namespace MinimumSpanningTreeWithKruskal.ViewModel
 {
     public class LoginViewModel
     {
-        [Required(ErrorMessage = "ایمیل الزامی است.")]
-        [EmailAddress(ErrorMessage = "ایمیل معتبر وارد کنید.")]
+        [Required(ErrorMessage = "ایمیل الزامی است")]
+        [EmailAddress(ErrorMessage = "ایمیل معتبر وارد کنید")]
         public string Email { get; set; }
 
-        [Required(ErrorMessage = "رمز عبور الزامی است.")]
+        [Required(ErrorMessage = "رمز عبور الزامی است")]
+        [MinLength(6, ErrorMessage = "رمز عبور باید حداقل ۶ کاراکتر باشد")]
         [DataType(DataType.Password)]
         public string Password { get; set; }
 

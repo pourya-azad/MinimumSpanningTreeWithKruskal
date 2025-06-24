@@ -8,59 +8,66 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/MinimumSpanningTreeWithKruskal.styles.css" asp-append-version="true" />
 </head>
-<body>
+<body style="direction:rtl">
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm mb-4" style="direction: rtl;">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">MinimumSpanningTreeWithKruskal</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>
-                    </ul>
-                    <ul class="navbar-nav">
-                        @if (User.Identity.IsAuthenticated)
-                        {
-                            <li class="nav-item">
-                                <span class="nav-link">سلام، @User.Identity.Name!</span>
-                            </li>
-                            <li class="nav-item">
-                                <form asp-controller="Account" asp-action="Logout" method="post" class="form-inline">
-                                    <button type="submit" class="btn btn-link nav-link" style="cursor:pointer;">خروج</button>
-                                </form>
-                            </li>
-                        }
-                        else
-                        {
-                            <li class="nav-item">
-                                <a class="nav-link" asp-controller="Account" asp-action="Login">ورود</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" asp-controller="Account" asp-action="Register">ثبت نام</a>
-                            </li>
-                        }
-                    </ul>
+                <div class="d-flex justify-content-between align-items-center w-100">
+                    <div class="d-flex align-items-center">
+                        <a class="navbar-brand fw-bold ms-2" asp-area="" asp-controller="Graph" asp-action="Index">MinimumSpanningTreeWithKruskal</a>
+                        <a class="btn btn-sm ms-2 text-white" asp-area="" asp-controller="Graph" asp-action="Index">خانه</a>
+                        <a class="btn btn-sm ms-2 text-white" asp-area="" asp-controller="Graph" asp-action="History">تاریخچه</a>
+                    </div>
+                    <div>
+                        <ul class="navbar-nav flex-row">
+                            @if (User.Identity.IsAuthenticated)
+                            {
+                                <li class="nav-item ms-2">
+                                    <span class="nav-link">سلام، @User.Identity.Name!</span>
+                                </li>
+                                <li class="nav-item">
+                                    <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                                        <button type="submit" class="btn btn-link nav-link text-white" style="cursor:pointer;">خروج</button>
+                                    </form>
+                                </li>
+                            }
+                            else
+                            {
+                                <li class="nav-item ms-2">
+                                    <a class="nav-link" asp-controller="Account" asp-action="Login">ورود</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Account" asp-action="Register">ثبت نام</a>
+                                </li>
+                            }
+                        </ul>
+                    </div>
                 </div>
             </div>
         </nav>
     </header>
     <div class="container">
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show mt-3" role="alert">
+                @TempData["SuccessMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show mt-3" role="alert">
+                @TempData["ErrorMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
     </div>
-
-    <footer class="border-top footer text-muted">
+    <footer class="footer mt-auto py-3 bg-light border-top text-center text-muted">
         <div class="container">
-            &copy; 1404 - MinimumSpanningTreeWithKruskal - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+            &copy; 1404 - MinimumSpanningTreeWithKruskal
         </div>
     </footer>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>

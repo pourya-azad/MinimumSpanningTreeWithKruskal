@@ -1,42 +1,146 @@
 ﻿@model MinimumSpanningTreeWithKruskal.ViewModel.GraphViewModel
 
 @{
-    Layout = null;
-
+    var graphId = (ViewContext.RouteData.Values["graphId"] ?? ViewContext.HttpContext.Request.Query["graphId"]).ToString();
+    var showMST = Model.ShowMST;
     // Serialize nodes as: { id: ..., label: ... }
     var nodesJson = System.Text.Json.JsonSerializer.Serialize(
         Model.Nodes.Select(n => new { id = n.Id, label = n.Label })
     );
 
-    // Serialize edges as: { from: ..., to: ..., label: ..., color: { color: ... } }
-    var edgesJson = System.Text.Json.JsonSerializer.Serialize(
-    Model.Edges.Select(e => new
-    {
-        from = e.Node1Id,
-        to = e.Node2Id,
-        label = e.Weight.ToString(),
-        color = new
+    // Serialize edges for both modes
+    var allEdgesJson = System.Text.Json.JsonSerializer.Serialize(
+        Model.Edges.Select(e => new
         {
-            color = Model.MSTEdges.Any(me => me.Id == e.Id) ? "red" : "gray"
-        }
-    })
-        );
+            from = e.Node1Id,
+            to = e.Node2Id,
+            label = e.Weight.ToString(),
+            color = new { color = "gray" }
+        })
+    );
+    var mstEdgesJson = System.Text.Json.JsonSerializer.Serialize(
+        Model.MSTEdges.Select(e => new
+        {
+            from = e.Node1Id,
+            to = e.Node2Id,
+            label = e.Weight.ToString(),
+            color = new { color = "red" }
+        })
+    );
 
+    var nodeCount = Model.Nodes.Count;
+    var edgeCount = Model.Edges.Count;
+    var mstWeight = Model.MSTEdges.Sum(e => e.Weight);
 }
 
-<h2>گراف و درخت پوشای کمینه</h2>
-
-<form method="post" action="@Url.Action("Compute")">
-    <button type="submit">محاسبه و ذخیره MST</button>
-</form>
-
-<div id="mynetwork" style="width: 800px; height: 600px; border:1px solid lightgray;"></div>
+<div class="container my-4">
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h2 class="card-title mb-0">گراف و درخت پوشای کمینه</h2>
+                <div>
+                    <a href="@Url.Action("DownloadGraphJson", new { graphId = graphId })" class="btn btn-outline-primary btn-sm me-2" data-bs-toggle="tooltip" title="دانلود گراف کامل به صورت JSON">
+                        <i class="bi bi-download"></i> <i class="bi bi-filetype-json"></i> دانلود گراف
+                    </a>
+                    <a href="@Url.Action("DownloadMstJson", new { graphId = graphId })" class="btn btn-outline-success btn-sm me-2" data-bs-toggle="tooltip" title="دانلود MST به صورت JSON">
+                        <i class="bi bi-download"></i> <i class="bi bi-filetype-json"></i> دانلود MST
+                    </a>
+                    <a href="@Url.Action("History")" class="btn btn-outline-secondary btn-sm">
+                        <i class="bi bi-clock-history"></i> تاریخچه گراف‌های من
+                    </a>
+                </div>
+            </div>
+            <div class="row mb-4">
+                <div class="col-md-4 mb-2">
+                    <div class="card text-center border-0 bg-light">
+                        <div class="card-body p-2">
+                            <div class="fw-bold">تعداد نودها</div>
+                            <div class="display-6">@nodeCount</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-2">
+                    <div class="card text-center border-0 bg-light">
+                        <div class="card-body p-2">
+                            <div class="fw-bold">تعداد یال‌ها</div>
+                            <div class="display-6">@edgeCount</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-2">
+                    <div class="card text-center border-0 bg-light">
+                        <div class="card-body p-2">
+                            <div class="fw-bold">وزن کل MST</div>
+                            <div class="display-6">@mstWeight</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <ul class="nav nav-tabs mb-3" id="graphTab" role="tablist">
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link @(Model.ShowMST ? "" : "active")" id="all-tab" data-bs-toggle="tab" data-bs-target="#all" type="button" role="tab" aria-controls="all" aria-selected="@(Model.ShowMST ? "false" : "true")" onclick="window.location='@Url.Action("Show", new { graphId = graphId, showMST = false })'">گراف کامل</button>
+                </li>
+                <li class="nav-item" role="presentation">
+                    <button class="nav-link @(Model.ShowMST ? "active" : "")" id="mst-tab" data-bs-toggle="tab" data-bs-target="#mst" type="button" role="tab" aria-controls="mst" aria-selected="@(Model.ShowMST ? "true" : "false")" onclick="window.location='@Url.Action("Show", new { graphId = graphId, showMST = true })'">MST</button>
+                </li>
+            </ul>
+            <div class="tab-content mb-4" id="graphTabContent">
+                @if (!Model.ShowMST)
+                {
+                    <div class="tab-pane fade show active" id="all" role="tabpanel" aria-labelledby="all-tab">
+                        <div id="mynetwork" style="width: 100%; max-width: 900px; height: 500px; border:1px solid #e0e0e0; margin: 0 auto;"></div>
+                    </div>
+                }
+                else
+                {
+                    <div class="tab-pane fade show active" id="mst" role="tabpanel" aria-labelledby="mst-tab">
+                        <div id="mynetwork" style="width: 100%; max-width: 900px; height: 500px; border:1px solid #e0e0e0; margin: 0 auto;"></div>
+                        <div class="mt-4">
+                            <h5>لیست یال‌های MST</h5>
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-sm">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>نود ۱</th>
+                                            <th>نود ۲</th>
+                                            <th>وزن</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                    @foreach (var e in Model.MSTEdges)
+                                    {
+                                        <tr>
+                                            <td>@e.Node1.Label</td>
+                                            <td>@e.Node2.Label</td>
+                                            <td>@e.Weight</td>
+                                        </tr>
+                                    }
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+            <div class="mb-3">
+                @if (!Model.HasMST)
+                {
+                    <form method="post" action="@Url.Action("Compute", new { GraphId = graphId })" class="d-inline">
+                        <button type="submit" class="btn btn-success btn-lg mb-2 ms-2" data-bs-toggle="tooltip" title="محاسبه و ذخیره MST">
+                            <i class="bi bi-graph-up"></i> محاسبه و ذخیره MST
+                        </button>
+                    </form>
+                }
+            </div>
+        </div>
+    </div>
+</div>
 
 <script src="https://unpkg.com/vis-network/standalone/umd/vis-network.min.js"></script>
 <script>
     const nodesData = new vis.DataSet(@Html.Raw(nodesJson));
-    const edgesData = new vis.DataSet(@Html.Raw(edgesJson));
-
+    const showMST = @Model.ShowMST.ToString().ToLower();
+    const edgesData = new vis.DataSet(showMST ? @Html.Raw(mstEdgesJson) : @Html.Raw(allEdgesJson));
     const container = document.getElementById('mynetwork');
     const data = {
       nodes: nodesData,
@@ -45,9 +149,9 @@
     const options = {
       edges: {
         arrows: {
-          to: { enabled: false } // غیرفعال کردن پیکان‌ها
+          to: { enabled: false }
         },
-        smooth: false // نمایش یال‌ها به صورت خط راست (اختیاری)
+        smooth: false
       }
     };
     new vis.Network(container, data, options);

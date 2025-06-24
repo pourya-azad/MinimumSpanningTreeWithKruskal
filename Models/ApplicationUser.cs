@@ -4,6 +4,6 @@ namespace MinimumSpanningTreeWithKruskal.Models
 {
     public class ApplicationUser : IdentityUser
     {
-        // فیلدهای اضافی در صورت نیاز
+        public virtual ICollection<Graph> GraphAsUser { get; set; } = new List<Graph>();
     }
-} 
+}

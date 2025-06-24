@@ -3,13 +3,34 @@
     ViewData["Title"] = "Graph Input";
 }
 
-<h2>وارد کردن گراف (JSON)</h2>
-
-@using (Html.BeginForm("Index", "Graph", FormMethod.Post))
-{
-    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
-    @Html.TextAreaFor(m => m.JsonData, new { style = "width:100%;height:200px;" })
-    <div class="text-danger">@Html.ValidationMessageFor(m => m.JsonData)</div>
-    <br />
-    <button type="submit">ارسال</button>
-}
+<div class="d-flex justify-content-end mb-3">
+    <a href="@Url.Action("History")" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-clock-history"></i> تاریخچه گراف‌های من
+    </a>
+</div>
+<div class="card shadow-sm mx-auto" style="max-width: 600px;">
+    <div class="card-body">
+        <h3 class="card-title mb-4">وارد کردن گراف (JSON)</h3>
+        @using (Html.BeginForm("Index", "Graph", FormMethod.Post))
+        {
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div class="alert alert-danger">
+                    @Html.ValidationSummary(false, "", new { @class = "mb-0" })
+                </div>
+            }
+            <div class="mb-3">
+                @Html.TextAreaFor(m => m.JsonData, new { @class = "form-control", rows = 8, placeholder = "{\n  \"graphName\": \"MyGraph\",\n  \"nodes\": [\n    { \"id\": 1, \"label\": \"A\" },\n    { \"id\": 2, \"label\": \"B\" },\n    { \"id\": 3, \"label\": \"C\" }\n  ],\n  \"edges\": [\n    { \"source\": \"A\", \"target\": \"B\", \"weight\": 4 },\n    { \"source\": \"B\", \"target\": \"C\", \"weight\": 6 },\n    { \"source\": \"C\", \"target\": \"A\", \"weight\": 3 }\n  ]\n}" })
+            </div>
+            <div class="mb-3">
+                <label for="jsonFile" class="form-label">یا فایل JSON گراف را انتخاب کنید:</label>
+                <input type="file" id="jsonFile" accept="application/json,.json" class="form-control" onchange="if(this.files[0]) { const reader = new FileReader(); reader.onload = e => document.getElementById('JsonData').value = e.target.result; reader.readAsText(this.files[0]); }">
+                <div class="form-text">پس از انتخاب فایل، محتوای آن به صورت خودکار در کادر زیر قرار می‌گیرد.</div>
+            </div>
+            <div class="mb-3">
+                <!-- حذف ValidationMessage("GraphName") -->
+            </div>
+            <button type="submit" class="btn btn-primary w-100">ارسال</button>
+        }
+    </div>
+</div>

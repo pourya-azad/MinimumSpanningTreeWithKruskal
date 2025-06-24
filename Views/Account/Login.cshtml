@@ -3,6 +3,7 @@
     ViewData["Title"] = "ورود";
 }
 <h2>ورود</h2>
+@Html.ValidationSummary(true, "", new { @class = "alert alert-danger" })
 <form asp-action="Login" method="post">
     <div class="form-group">
         <label asp-for="Email"></label>

@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace MinimumSpanningTreeWithKruskal.Migrations
 {
     /// <inheritdoc />
-    public partial class AddIdentityTables : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -156,6 +156,92 @@ namespace MinimumSpanningTreeWithKruskal.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "Graphs",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Graphs", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Graphs_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Nodes",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Label = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    GraphId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Nodes", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Nodes_Graphs_GraphId",
+                        column: x => x.GraphId,
+                        principalTable: "Graphs",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Edges",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Node1Id = table.Column<int>(type: "int", nullable: false),
+                    Node2Id = table.Column<int>(type: "int", nullable: false),
+                    Weight = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Edges", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Edges_Nodes_Node1Id",
+                        column: x => x.Node1Id,
+                        principalTable: "Nodes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Edges_Nodes_Node2Id",
+                        column: x => x.Node2Id,
+                        principalTable: "Nodes",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "MSTEdges",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    EdgeId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_MSTEdges", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_MSTEdges_Edges_EdgeId",
+                        column: x => x.EdgeId,
+                        principalTable: "Edges",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -194,6 +280,31 @@ namespace MinimumSpanningTreeWithKruskal.Migrations
                 column: "NormalizedUserName",
                 unique: true,
                 filter: "[NormalizedUserName] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Edges_Node1Id",
+                table: "Edges",
+                column: "Node1Id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Edges_Node2Id",
+                table: "Edges",
+                column: "Node2Id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Graphs_UserId",
+                table: "Graphs",
+                column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_MSTEdges_EdgeId",
+                table: "MSTEdges",
+                column: "EdgeId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Nodes_GraphId",
+                table: "Nodes",
+                column: "GraphId");
         }
 
         /// <inheritdoc />
@@ -215,7 +326,19 @@ namespace MinimumSpanningTreeWithKruskal.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "MSTEdges");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoles");
+
+            migrationBuilder.DropTable(
+                name: "Edges");
+
+            migrationBuilder.DropTable(
+                name: "Nodes");
+
+            migrationBuilder.DropTable(
+                name: "Graphs");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");

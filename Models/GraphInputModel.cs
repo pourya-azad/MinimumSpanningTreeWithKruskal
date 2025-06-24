@@ -1,9 +1,12 @@
 ﻿namespace MinimumSpanningTreeWithKruskal.Models
 {
+    using System.ComponentModel.DataAnnotations;
+
     public class GraphInputModel
     {
+        [Required(ErrorMessage = "وارد کردن داده گراف (JSON) الزامی است.")]
         public string JsonData { get; set; } = string.Empty;
-        public List<string> Nodes { get; set; } = new();
+        public List<NodeInput> Nodes { get; set; } = new();
         public List<EdgeInput> Edges { get; set; } = new();
     }
     public class EdgeInput

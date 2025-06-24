@@ -12,8 +12,8 @@ using MinimumSpanningTreeWithKruskal.Models;
 namespace MinimumSpanningTreeWithKruskal.Migrations
 {
     [DbContext(typeof(GraphDbContext))]
-    [Migration("20250623091800_AddIdentityTables")]
-    partial class AddIdentityTables
+    [Migration("20250624064750_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -249,6 +249,28 @@ namespace MinimumSpanningTreeWithKruskal.Migrations
                     b.ToTable("Edges");
                 });
 
+            modelBuilder.Entity("MinimumSpanningTreeWithKruskal.Models.Graph", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Graphs");
+                });
+
             modelBuilder.Entity("MinimumSpanningTreeWithKruskal.Models.MSTEdge", b =>
                 {
                     b.Property<int>("Id")
@@ -275,11 +297,16 @@ namespace MinimumSpanningTreeWithKruskal.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int>("GraphId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Label")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("GraphId");
 
                     b.ToTable("Nodes");
                 });
@@ -354,6 +381,17 @@ namespace MinimumSpanningTreeWithKruskal.Migrations
                     b.Navigation("Node2");
                 });
 
+            modelBuilder.Entity("MinimumSpanningTreeWithKruskal.Models.Graph", b =>
+                {
+                    b.HasOne("MinimumSpanningTreeWithKruskal.Models.ApplicationUser", "ApplicationUser")
+                        .WithMany("GraphAsUser")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ApplicationUser");
+                });
+
             modelBuilder.Entity("MinimumSpanningTreeWithKruskal.Models.MSTEdge", b =>
                 {
                     b.HasOne("MinimumSpanningTreeWithKruskal.Models.Edge", "Edge")
@@ -363,6 +401,27 @@ namespace MinimumSpanningTreeWithKruskal.Migrations
                         .IsRequired();
 
                     b.Navigation("Edge");
+                });
+
+            modelBuilder.Entity("MinimumSpanningTreeWithKruskal.Models.Node", b =>
+                {
+                    b.HasOne("MinimumSpanningTreeWithKruskal.Models.Graph", "Graph")
+                        .WithMany("NodeAsGraph")
+                        .HasForeignKey("GraphId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Graph");
+                });
+
+            modelBuilder.Entity("MinimumSpanningTreeWithKruskal.Models.ApplicationUser", b =>
+                {
+                    b.Navigation("GraphAsUser");
+                });
+
+            modelBuilder.Entity("MinimumSpanningTreeWithKruskal.Models.Graph", b =>
+                {
+                    b.Navigation("NodeAsGraph");
                 });
 
             modelBuilder.Entity("MinimumSpanningTreeWithKruskal.Models.Node", b =>

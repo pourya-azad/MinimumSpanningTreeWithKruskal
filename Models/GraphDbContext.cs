@@ -13,6 +13,8 @@ namespace MinimumSpanningTreeWithKruskal.Models
         public DbSet<Edge> Edges { get; set; }
         public DbSet<MSTEdge> MSTEdges { get; set; }
 
+        public DbSet<Graph> Graphs { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -36,6 +38,19 @@ namespace MinimumSpanningTreeWithKruskal.Models
                 .WithMany()
                 .HasForeignKey(me => me.EdgeId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Node>()
+                .HasOne(me => me.Graph)
+                .WithMany(me => me.NodeAsGraph)
+                .HasForeignKey(m => m.GraphId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Graph>()
+                .HasOne(g => g.ApplicationUser)
+                .WithMany(u => u.GraphAsUser)
+                .HasForeignKey(me => me.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
         }
 
     }
