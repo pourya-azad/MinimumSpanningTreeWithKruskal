@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using MinimumSpanningTreeWithKruskal.Models;
-using MinimumSpanningTreeWithKruskal.Services;
+using MinimumSpanningTreeWithKruskal.Interfaces;
 // Add the required NuGet package reference for EF Core In-Memory Database:
 // Microsoft.EntityFrameworkCore.InMemory
 
@@ -13,7 +13,9 @@ builder.Services.AddDbContext<GraphDbContext>(options =>
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
     .AddEntityFrameworkStores<GraphDbContext>()
     .AddDefaultTokenProviders();
-builder.Services.AddScoped<GraphService>();
+builder.Services.AddScoped<MinimumSpanningTreeWithKruskal.Interfaces.IGraphService, MinimumSpanningTreeWithKruskal.Services.GraphService>();
+builder.Services.AddScoped<MinimumSpanningTreeWithKruskal.Interfaces.IGraphValidator, MinimumSpanningTreeWithKruskal.Services.GraphValidator>();
+builder.Services.AddScoped<MinimumSpanningTreeWithKruskal.Interfaces.IMSTAlgorithm, MinimumSpanningTreeWithKruskal.Services.KruskalMSTAlgorithm>();
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();

@@ -1,10 +1,11 @@
 using MinimumSpanningTreeWithKruskal.Models;
 using System.Collections.Generic;
 using System.Linq;
+using MinimumSpanningTreeWithKruskal.Interfaces;
 
 namespace MinimumSpanningTreeWithKruskal.Services
 {
-    public class GraphValidator
+    public class GraphValidator : IGraphValidator
     {
         public List<string> Validate(GraphData input)
         {

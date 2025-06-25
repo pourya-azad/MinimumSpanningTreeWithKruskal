@@ -1,11 +1,12 @@
-﻿using System.Text.Json;
+﻿using System.Security.Claims;
+using System.Text.Json;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using MinimumSpanningTreeWithKruskal.Models;
 using MinimumSpanningTreeWithKruskal.Services;
 using MinimumSpanningTreeWithKruskal.ViewModel;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
-using System.Security.Claims;
+using MinimumSpanningTreeWithKruskal.Interfaces;
 
 namespace MinimumSpanningTreeWithKruskal.Controllers
 {
@@ -13,46 +14,19 @@ namespace MinimumSpanningTreeWithKruskal.Controllers
     public class GraphController : Controller
     {
         private readonly GraphDbContext _db;
-        private readonly GraphService _service;
+        private readonly IGraphService _service;
+        private readonly IGraphValidator _validator;
         private readonly UserManager<ApplicationUser> _userManager;
-        private readonly GraphValidator _validator = new GraphValidator();
 
-        public GraphController(GraphDbContext db, GraphService service, UserManager<ApplicationUser> userManager)
+        public GraphController(GraphDbContext db, IGraphService service, IGraphValidator validator, UserManager<ApplicationUser> userManager)
         {
             _db = db;
             _service = service;
+            _validator = validator;
             _userManager = userManager;
         }
 
         public ActionResult Index() => View();
-
-        // بررسی متصل بودن گراف
-        private bool IsGraphConnected(List<NodeInput> nodes, List<EdgeInput> edges)
-        {
-            if (nodes.Count == 0) return false;
-            var labelSet = new HashSet<string>(nodes.Select(n => n.Label));
-            var adj = nodes.ToDictionary(n => n.Label, n => new List<string>());
-            foreach (var e in edges)
-            {
-                if (labelSet.Contains(e.Source) && labelSet.Contains(e.Target))
-                {
-                    adj[e.Source].Add(e.Target);
-                    adj[e.Target].Add(e.Source);
-                }
-            }
-            var visited = new HashSet<string>();
-            var queue = new Queue<string>();
-            queue.Enqueue(nodes[0].Label);
-            while (queue.Count > 0)
-            {
-                var curr = queue.Dequeue();
-                if (!visited.Add(curr)) continue;
-                foreach (var next in adj[curr])
-                    if (!visited.Contains(next))
-                        queue.Enqueue(next);
-            }
-            return visited.Count == nodes.Count;
-        }
 
         [HttpPost]
         public ActionResult Index(GraphInputModel model)
@@ -77,13 +51,6 @@ namespace MinimumSpanningTreeWithKruskal.Controllers
             {
                 foreach (var err in errors)
                     ModelState.AddModelError("", err);
-                return View(model);
-            }
-
-            // اعتبارسنجی متصل بودن گراف
-            if (!IsGraphConnected(input.Nodes, input.Edges))
-            {
-                ModelState.AddModelError("", "گراف باید متصل باشد (تمام نودها باید به هم راه داشته باشند).");
                 return View(model);
             }
 

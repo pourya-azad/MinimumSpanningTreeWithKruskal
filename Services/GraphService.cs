@@ -1,12 +1,19 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using MinimumSpanningTreeWithKruskal.Models;
+using MinimumSpanningTreeWithKruskal.Interfaces;
 
 namespace MinimumSpanningTreeWithKruskal.Services
 {
-    public class GraphService
+    public class GraphService : IGraphService
     {
         private readonly GraphDbContext _db;
-        public GraphService(GraphDbContext db) { _db = db; }
+        private readonly IMSTAlgorithm _mstAlgorithm;
+
+        public GraphService(GraphDbContext db, IMSTAlgorithm mstAlgorithm)
+        {
+            _db = db;
+            _mstAlgorithm = mstAlgorithm;
+        }
 
         public IList<Edge> ComputeMST(int GraphId)
         {
@@ -14,24 +21,9 @@ namespace MinimumSpanningTreeWithKruskal.Services
                 .Where(e => e.Node1.GraphId == GraphId && e.Node2.GraphId == GraphId)
                 .Include(e => e.Node1)
                 .Include(e => e.Node2)
-                .ToList()
-                .OrderBy(e => e.Weight)
                 .ToList();
-
             var nodes = _db.Nodes.Where(n => n.GraphId == GraphId).Select(n => n.Id).ToList();
-            var index = nodes.Select((id, idx) => new { id, idx })
-                .ToDictionary(x => x.id, x => x.idx);
-
-            var ds = new DisjointSet(nodes.Count);
-            var mst = new List<Edge>();
-
-            foreach (var e in edges)
-            {
-                if (ds.Union(index[e.Node1Id], index[e.Node2Id]))
-                    mst.Add(e);
-            }
-
-            return mst;
+            return _mstAlgorithm.ComputeMST(edges, nodes);
         }
 
         public void SaveMST(IList<Edge> mst, int graphId)
@@ -55,5 +47,4 @@ namespace MinimumSpanningTreeWithKruskal.Services
             }
         }
     }
-
 }
