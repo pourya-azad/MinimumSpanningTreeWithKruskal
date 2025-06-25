@@ -13,14 +13,16 @@ namespace MinimumSpanningTreeWithKruskal.Controllers
     [Authorize]
     public class GraphController : Controller
     {
-        private readonly GraphDbContext _db;
+        private readonly IGraphRepository _graphRepository;
+        private readonly IMSTRepository _mstRepository;
         private readonly IGraphService _service;
         private readonly IGraphValidator _validator;
         private readonly UserManager<ApplicationUser> _userManager;
 
-        public GraphController(GraphDbContext db, IGraphService service, IGraphValidator validator, UserManager<ApplicationUser> userManager)
+        public GraphController(IGraphRepository graphRepository, IMSTRepository mstRepository, IGraphService service, IGraphValidator validator, UserManager<ApplicationUser> userManager)
         {
-            _db = db;
+            _graphRepository = graphRepository;
+            _mstRepository = mstRepository;
             _service = service;
             _validator = validator;
             _userManager = userManager;
@@ -34,7 +36,7 @@ namespace MinimumSpanningTreeWithKruskal.Controllers
             if (!ModelState.IsValid)
                 return View(model);
 
-            GraphData input;
+            GraphData? input = null;
             try
             {
                 var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
@@ -46,7 +48,7 @@ namespace MinimumSpanningTreeWithKruskal.Controllers
                 return View(model);
             }
 
-            var errors = _validator.Validate(input);
+            var errors = input != null ? _validator.Validate(input) : new List<string> { "ورودی نامعتبر است." };
             if (errors.Any())
             {
                 foreach (var err in errors)
@@ -59,12 +61,12 @@ namespace MinimumSpanningTreeWithKruskal.Controllers
             {
                 return Challenge(); // کاربر لاگین نیست
             }
-            var user = _db.Users.FirstOrDefault(u => u.Id == userIdStr);
+            var user = _graphRepository.GetUserById(userIdStr);
             if (user == null)
             {
                 return Challenge();
             }
-            if (_db.Graphs.Any(x => x.Name == input.GraphName && x.UserId == userIdStr))
+            if (_graphRepository.GraphExists(input!.GraphName, userIdStr))
             {
                 ModelState.AddModelError("GraphName", "شما قبلاً گرافی با این نام ثبت کرده‌اید.");
                 return View(model);
@@ -76,26 +78,26 @@ namespace MinimumSpanningTreeWithKruskal.Controllers
                 UserId = userIdStr,
                 ApplicationUser = user
             };
-            _db.Graphs.Add(graph);
-            _db.SaveChanges(); // تا Graph.Id مقداردهی شود
+            _graphRepository.AddGraph(graph);
+            _graphRepository.SaveChanges(); // تا Graph.Id مقداردهی شود
 
             // ذخیره نودها
             var labelToNode = new Dictionary<string, Node>(StringComparer.OrdinalIgnoreCase);
-            foreach (var node in input.Nodes.DistinctBy(n => n.Label))
+            foreach (var node in input.Nodes.Where(n => n != null).DistinctBy(n => n.Label))
             {
                 var newNode = new Node
                 {
                     Label = node.Label,
                     GraphId = graph.Id,
                 };
-                _db.Nodes.Add(newNode);
+                _graphRepository.AddNode(newNode);
                 labelToNode[node.Label] = newNode;
             }
-            _db.SaveChanges();
+            _graphRepository.SaveChanges();
 
             // ذخیره یال‌ها
             var addedEdges = new HashSet<(int, int)>();
-            foreach (var e in input.Edges)
+            foreach (var e in input.Edges.Where(e => e != null))
             {
                 var node1 = labelToNode[e.Source];
                 var node2 = labelToNode[e.Target];
@@ -105,7 +107,7 @@ namespace MinimumSpanningTreeWithKruskal.Controllers
                 var key = (Math.Min(id1, id2), Math.Max(id1, id2));
                 if (!addedEdges.Contains(key))
                 {
-                    _db.Edges.Add(new Edge
+                    _graphRepository.AddEdge(new Edge
                     {
                         Node1Id = key.Item1,
                         Node2Id = key.Item2,
@@ -114,20 +116,20 @@ namespace MinimumSpanningTreeWithKruskal.Controllers
                     addedEdges.Add(key);
                 }
             }
-            _db.SaveChanges();
+            _graphRepository.SaveChanges();
 
             return RedirectToAction("Show");
         }
 
         public ActionResult Show(int? graphId = null, bool showMST = false)
         {
-            if (graphId == null)
+            if (!graphId.HasValue)
             {
                 return RedirectToAction("History");
             }
-            var nodes = _db.Nodes.Where(n => n.GraphId == graphId).ToList();
-            var edges = _db.Edges.Where(e => e.Node1.GraphId == graphId && e.Node2.GraphId == graphId).ToList();
-            var mstEdges = _db.MSTEdges.Where(me => me.Edge.Node1.GraphId == graphId && me.Edge.Node2.GraphId == graphId).Select(me => me.Edge).ToList();
+            var nodes = _graphRepository.GetNodes(graphId.Value)?.Where(n => n != null).ToList() ?? new List<Node>();
+            var edges = _graphRepository.GetEdges(graphId.Value)?.Where(e => e != null).ToList() ?? new List<Edge>();
+            var mstEdges = _mstRepository.GetMSTEdges(graphId.Value)?.Where(me => me?.Edge != null).Select(me => me.Edge!).ToList() ?? new List<Edge>();
 
             var vm = new GraphViewModel
             {
@@ -143,7 +145,7 @@ namespace MinimumSpanningTreeWithKruskal.Controllers
         public ActionResult Compute(int GraphId)
         {
             // اگر قبلاً برای این گراف MST ذخیره شده بود، هیچ کاری انجام نده
-            var hasMST = _db.MSTEdges.Any(me => me.Edge.Node1.GraphId == GraphId && me.Edge.Node2.GraphId == GraphId);
+            var hasMST = _mstRepository.MSTExists(GraphId);
             if (hasMST)
             {
                 return RedirectToAction("Show", new { graphId = GraphId });
@@ -162,7 +164,7 @@ namespace MinimumSpanningTreeWithKruskal.Controllers
                 return Challenge();
             }
             string userId = userIdStr;
-            var graphs = _db.Graphs.Where(g => g.UserId == userId).ToList();
+            var graphs = _graphRepository.GetGraphs(userId).ToList();
             return View(graphs);
         }
 
@@ -174,7 +176,7 @@ namespace MinimumSpanningTreeWithKruskal.Controllers
             {
                 return Challenge();
             }
-            var graph = _db.Graphs.FirstOrDefault(g => g.Id == graphId && g.UserId == userIdStr);
+            var graph = _graphRepository.GetGraph(graphId, userIdStr);
             if (graph == null)
             {
                 ModelState.AddModelError("GraphName", "گرافی با این آیدی برای حذف یافت نشد.");
@@ -182,21 +184,21 @@ namespace MinimumSpanningTreeWithKruskal.Controllers
             }
 
             // حذف MSTEdges
-            var mstEdges = _db.MSTEdges.Where(me => me.Edge.Node1.GraphId == graphId && me.Edge.Node2.GraphId == graphId).ToList();
-            _db.MSTEdges.RemoveRange(mstEdges);
+            var mstEdges = _mstRepository.GetMSTEdges(graphId).ToList();
+            _mstRepository.RemoveMSTEdges(mstEdges);
 
             // حذف Edges
-            var edges = _db.Edges.Where(e => e.Node1.GraphId == graphId && e.Node2.GraphId == graphId).ToList();
-            _db.Edges.RemoveRange(edges);
+            var edges = _graphRepository.GetEdges(graphId).ToList();
+            _graphRepository.RemoveEdges(edges);
 
             // حذف Nodes
-            var nodes = _db.Nodes.Where(n => n.GraphId == graphId).ToList();
-            _db.Nodes.RemoveRange(nodes);
+            var nodes = _graphRepository.GetNodes(graphId).ToList();
+            _graphRepository.RemoveNodes(nodes);
 
             // حذف خود گراف
-            _db.Graphs.Remove(graph);
+            _graphRepository.RemoveGraph(graph);
 
-            _db.SaveChanges();
+            _graphRepository.SaveChanges();
             return RedirectToAction("History");
         }
 
@@ -204,10 +206,10 @@ namespace MinimumSpanningTreeWithKruskal.Controllers
         [HttpGet]
         public IActionResult DownloadGraphJson(int graphId)
         {
-            var graph = _db.Graphs.FirstOrDefault(g => g.Id == graphId);
-            var nodes = _db.Nodes.Where(n => n.GraphId == graphId).Select(n => new { id = n.Id, label = n.Label }).ToList();
+            var graph = _graphRepository.GetGraph(graphId);
+            var nodes = _graphRepository.GetNodes(graphId).Select(n => new { id = n.Id, label = n.Label }).ToList();
             var nodeIdToLabel = nodes.ToDictionary(n => n.id, n => n.label);
-            var edges = _db.Edges.Where(e => e.Node1.GraphId == graphId && e.Node2.GraphId == graphId)
+            var edges = _graphRepository.GetEdges(graphId)
                 .Select(e => new { source = e.Node1.Label, target = e.Node2.Label, weight = e.Weight }).ToList();
             var json = System.Text.Json.JsonSerializer.Serialize(new { graphName = graph?.Name, nodes, edges });
             return File(System.Text.Encoding.UTF8.GetBytes(json), "application/json", $"graph_{graphId}.json");
@@ -217,11 +219,16 @@ namespace MinimumSpanningTreeWithKruskal.Controllers
         [HttpGet]
         public IActionResult DownloadMstJson(int graphId)
         {
-            var graph = _db.Graphs.FirstOrDefault(g => g.Id == graphId);
-            var nodes = _db.Nodes.Where(n => n.GraphId == graphId).Select(n => new { id = n.Id, label = n.Label }).ToList();
+            var graph = _graphRepository.GetGraph(graphId);
+            var nodes = _graphRepository.GetNodes(graphId).Select(n => new { id = n.Id, label = n.Label }).ToList();
             var nodeIdToLabel = nodes.ToDictionary(n => n.id, n => n.label);
-            var mstEdges = _db.MSTEdges.Where(me => me.Edge.Node1.GraphId == graphId && me.Edge.Node2.GraphId == graphId)
-                .Select(me => new { source = me.Edge.Node1.Label, target = me.Edge.Node2.Label, weight = me.Edge.Weight }).ToList();
+            var mstEdges = _mstRepository.GetMSTEdges(graphId)
+                .Where(me => me != null && me.Edge != null && me.Edge.Node1 != null && me.Edge.Node2 != null)
+                .Select(me => new { 
+                    source = me.Edge.Node1.Label, 
+                    target = me.Edge.Node2.Label, 
+                    weight = me.Edge.Weight 
+                }).ToList();
             var json = System.Text.Json.JsonSerializer.Serialize(new { graphName = graph?.Name, nodes, edges = mstEdges });
             return File(System.Text.Encoding.UTF8.GetBytes(json), "application/json", $"mst_{graphId}.json");
         }

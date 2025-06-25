@@ -16,6 +16,8 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
 builder.Services.AddScoped<MinimumSpanningTreeWithKruskal.Interfaces.IGraphService, MinimumSpanningTreeWithKruskal.Services.GraphService>();
 builder.Services.AddScoped<MinimumSpanningTreeWithKruskal.Interfaces.IGraphValidator, MinimumSpanningTreeWithKruskal.Services.GraphValidator>();
 builder.Services.AddScoped<MinimumSpanningTreeWithKruskal.Interfaces.IMSTAlgorithm, MinimumSpanningTreeWithKruskal.Services.KruskalMSTAlgorithm>();
+builder.Services.AddScoped<MinimumSpanningTreeWithKruskal.Interfaces.IGraphRepository, MinimumSpanningTreeWithKruskal.Services.GraphRepository>();
+builder.Services.AddScoped<MinimumSpanningTreeWithKruskal.Interfaces.IMSTRepository, MinimumSpanningTreeWithKruskal.Services.MSTRepository>();
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
