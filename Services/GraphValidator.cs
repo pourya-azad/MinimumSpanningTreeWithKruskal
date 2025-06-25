@@ -53,14 +53,14 @@ namespace MinimumSpanningTreeWithKruskal.Services
         private bool IsGraphConnected(List<NodeInput> nodes, List<EdgeInput> edges)
         {
             if (nodes.Count == 0) return false;
-            var labelSet = new HashSet<string>(nodes.Select(n => n.Label));
-            var adj = nodes.ToDictionary(n => n.Label, n => new List<string>());
-            foreach (var e in edges)
+            var labelSet = new HashSet<string>(nodes.Select(node => node.Label));
+            var adj = nodes.ToDictionary(node => node.Label, node => new List<string>());
+            foreach (var edge in edges)
             {
-                if (labelSet.Contains(e.Source) && labelSet.Contains(e.Target))
+                if (labelSet.Contains(edge.Source) && labelSet.Contains(edge.Target))
                 {
-                    adj[e.Source].Add(e.Target);
-                    adj[e.Target].Add(e.Source);
+                    adj[edge.Source].Add(edge.Target);
+                    adj[edge.Target].Add(edge.Source);
                 }
             }
             var visited = new HashSet<string>();

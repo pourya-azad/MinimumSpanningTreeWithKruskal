@@ -9,15 +9,15 @@ namespace MinimumSpanningTreeWithKruskal.Services
     {
         public IList<Edge> ComputeMST(IEnumerable<Edge> edges, List<int> nodeIds)
         {
-            var orderedEdges = edges.OrderBy(e => e.Weight).ToList();
+            var orderedEdges = edges.OrderBy(edge => edge.Weight).ToList();
             var index = nodeIds.Select((id, idx) => new { id, idx })
                 .ToDictionary(x => x.id, x => x.idx);
             var ds = new DisjointSet(nodeIds.Count);
             var mst = new List<Edge>();
-            foreach (var e in orderedEdges)
+            foreach (var edge in orderedEdges)
             {
-                if (ds.Union(index[e.Node1Id], index[e.Node2Id]))
-                    mst.Add(e);
+                if (ds.Union(index[edge.Node1Id], index[edge.Node2Id]))
+                    mst.Add(edge);
             }
             return mst;
         }
