@@ -18,14 +18,16 @@ namespace MinimumSpanningTreeWithKruskal.Controllers
         private readonly IGraphService _service;
         private readonly IGraphValidator _validator;
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IGraphInputHandlerService _inputHandler;
 
-        public GraphController(IGraphRepository graphRepository, IMSTRepository mstRepository, IGraphService service, IGraphValidator validator, UserManager<ApplicationUser> userManager)
+        public GraphController(IGraphRepository graphRepository, IMSTRepository mstRepository, IGraphService service, IGraphValidator validator, UserManager<ApplicationUser> userManager, IGraphInputHandlerService inputHandler)
         {
             _graphRepository = graphRepository;
             _mstRepository = mstRepository;
             _service = service;
             _validator = validator;
             _userManager = userManager;
+            _inputHandler = inputHandler;
         }
 
         public ActionResult Index() => View();
@@ -36,19 +38,7 @@ namespace MinimumSpanningTreeWithKruskal.Controllers
             if (!ModelState.IsValid)
                 return View(model);
 
-            GraphData? input = null;
-            try
-            {
-                var options = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-                input = JsonSerializer.Deserialize<GraphData>(model.JsonData, options);
-            }
-            catch (Exception ex)
-            {
-                ModelState.AddModelError("", $"خطا در پردازش JSON: {ex.Message}");
-                return View(model);
-            }
-
-            var errors = input != null ? _validator.Validate(input) : new List<string> { "ورودی نامعتبر است." };
+            var (input, errors) = _inputHandler.ParseAndValidate(model.JsonData);
             if (errors.Any())
             {
                 foreach (var err in errors)

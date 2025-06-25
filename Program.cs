@@ -18,6 +18,7 @@ builder.Services.AddScoped<MinimumSpanningTreeWithKruskal.Interfaces.IGraphValid
 builder.Services.AddScoped<MinimumSpanningTreeWithKruskal.Interfaces.IMSTAlgorithm, MinimumSpanningTreeWithKruskal.Services.KruskalMSTAlgorithm>();
 builder.Services.AddScoped<MinimumSpanningTreeWithKruskal.Interfaces.IGraphRepository, MinimumSpanningTreeWithKruskal.Services.GraphRepository>();
 builder.Services.AddScoped<MinimumSpanningTreeWithKruskal.Interfaces.IMSTRepository, MinimumSpanningTreeWithKruskal.Services.MSTRepository>();
+builder.Services.AddScoped<MinimumSpanningTreeWithKruskal.Interfaces.IGraphInputHandlerService, MinimumSpanningTreeWithKruskal.Services.GraphInputHandlerService>();
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
