@@ -14,8 +14,6 @@ namespace MinimumSpanningTreeWithKruskal.Controllers
         private readonly IGraphRepository _graphRepository;
         private readonly IMSTRepository _mstRepository;
         private readonly IGraphService _service;
-        private readonly IGraphValidator _validator;
-        private readonly UserManager<ApplicationUser> _userManager;
         private readonly IGraphInputHandlerService _inputHandler;
         private readonly IGraphPersistenceService _persistenceService;
 
@@ -24,8 +22,6 @@ namespace MinimumSpanningTreeWithKruskal.Controllers
             _graphRepository = graphRepository;
             _mstRepository = mstRepository;
             _service = service;
-            _validator = validator;
-            _userManager = userManager;
             _inputHandler = inputHandler;
             _persistenceService = persistenceService;
         }
@@ -49,7 +45,7 @@ namespace MinimumSpanningTreeWithKruskal.Controllers
             var userIdStr = User.FindFirstValue(ClaimTypes.NameIdentifier);
             if (string.IsNullOrEmpty(userIdStr))
             {
-                return Challenge(); // کاربر لاگین نیست
+                return Challenge();
             }
             try
             {
@@ -86,7 +82,7 @@ namespace MinimumSpanningTreeWithKruskal.Controllers
         [HttpPost]
         public ActionResult Compute(int GraphId)
         {
-            // اگر قبلاً برای این گراف MST ذخیره شده بود، هیچ کاری انجام نده
+
             var hasMST = _mstRepository.MSTExists(GraphId);
             if (hasMST)
             {
@@ -129,7 +125,6 @@ namespace MinimumSpanningTreeWithKruskal.Controllers
             return RedirectToAction("History");
         }
 
-        // دانلود گراف کامل به فرمت ورودی Index
         [HttpGet]
         public IActionResult DownloadGraphJson(int graphId)
         {
@@ -142,7 +137,6 @@ namespace MinimumSpanningTreeWithKruskal.Controllers
             return File(System.Text.Encoding.UTF8.GetBytes(json), "application/json", $"graph_{graphId}.json");
         }
 
-        // دانلود MST به فرمت ورودی Index
         [HttpGet]
         public IActionResult DownloadMstJson(int graphId)
         {
