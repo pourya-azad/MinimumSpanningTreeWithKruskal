@@ -1,9 +1,8 @@
-using System.Collections.Generic;
-using System.Linq;
-using MinimumSpanningTreeWithKruskal.Models;
+using MinimumSpanningTreeWithKruskal.Data;
 using MinimumSpanningTreeWithKruskal.Interfaces;
+using MinimumSpanningTreeWithKruskal.Models;
 
-namespace MinimumSpanningTreeWithKruskal.Services
+namespace MinimumSpanningTreeWithKruskal.Repositories
 {
     public class GraphRepository : IGraphRepository
     {
@@ -32,4 +31,4 @@ namespace MinimumSpanningTreeWithKruskal.Services
         public IEnumerable<Edge> GetEdges(int graphId) => _db.Edges.Where(e => e.Node1.GraphId == graphId && e.Node2.GraphId == graphId).ToList();
         public Graph GetGraph(int graphId) => _db.Graphs.FirstOrDefault(g => g.Id == graphId);
     }
-} 
+}

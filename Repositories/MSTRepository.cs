@@ -1,10 +1,9 @@
-using System.Collections.Generic;
-using System.Linq;
-using MinimumSpanningTreeWithKruskal.Models;
-using MinimumSpanningTreeWithKruskal.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using MinimumSpanningTreeWithKruskal.Data;
+using MinimumSpanningTreeWithKruskal.Interfaces;
+using MinimumSpanningTreeWithKruskal.Models;
 
-namespace MinimumSpanningTreeWithKruskal.Services
+namespace MinimumSpanningTreeWithKruskal.Repositories
 {
     public class MSTRepository : IMSTRepository
     {
@@ -36,4 +35,4 @@ namespace MinimumSpanningTreeWithKruskal.Services
         public void RemoveMSTEdges(IEnumerable<MSTEdge> mstEdges)
             => _db.MSTEdges.RemoveRange(mstEdges);
     }
-} 
+}

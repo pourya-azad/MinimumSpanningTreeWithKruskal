@@ -1,6 +1,6 @@
 ﻿using MinimumSpanningTreeWithKruskal.Models;
 
-namespace MinimumSpanningTreeWithKruskal.ViewModel
+namespace MinimumSpanningTreeWithKruskal.ViewModels
 {
     public class GraphViewModel
     {

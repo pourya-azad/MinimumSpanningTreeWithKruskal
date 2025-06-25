@@ -1,7 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using MinimumSpanningTreeWithKruskal.Models;
 
-namespace MinimumSpanningTreeWithKruskal.Models
+namespace MinimumSpanningTreeWithKruskal.Data
 {
     public class GraphDbContext : IdentityDbContext<ApplicationUser>
     {

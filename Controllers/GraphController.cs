@@ -1,12 +1,10 @@
 ﻿using System.Security.Claims;
-using System.Text.Json;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using MinimumSpanningTreeWithKruskal.Models;
-using MinimumSpanningTreeWithKruskal.Services;
-using MinimumSpanningTreeWithKruskal.ViewModel;
 using MinimumSpanningTreeWithKruskal.Interfaces;
+using MinimumSpanningTreeWithKruskal.Models;
+using MinimumSpanningTreeWithKruskal.ViewModels;
 
 namespace MinimumSpanningTreeWithKruskal.Controllers
 {
@@ -153,10 +151,11 @@ namespace MinimumSpanningTreeWithKruskal.Controllers
             var nodeIdToLabel = nodes.ToDictionary(n => n.id, n => n.label);
             var mstEdges = _mstRepository.GetMSTEdges(graphId)
                 .Where(me => me != null && me.Edge != null && me.Edge.Node1 != null && me.Edge.Node2 != null)
-                .Select(me => new { 
-                    source = me.Edge.Node1.Label, 
-                    target = me.Edge.Node2.Label, 
-                    weight = me.Edge.Weight 
+                .Select(me => new
+                {
+                    source = me.Edge.Node1.Label,
+                    target = me.Edge.Node2.Label,
+                    weight = me.Edge.Weight
                 }).ToList();
             var json = System.Text.Json.JsonSerializer.Serialize(new { graphName = graph?.Name, nodes, edges = mstEdges });
             return File(System.Text.Encoding.UTF8.GetBytes(json), "application/json", $"mst_{graphId}.json");

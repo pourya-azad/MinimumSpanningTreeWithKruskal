@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace MinimumSpanningTreeWithKruskal.ViewModel
+namespace MinimumSpanningTreeWithKruskal.ViewModels
 {
     public class RegisterViewModel
     {
@@ -18,4 +18,4 @@ namespace MinimumSpanningTreeWithKruskal.ViewModel
         [Compare("Password", ErrorMessage = "رمز عبور و تکرار آن یکسان نیست.")]
         public string ConfirmPassword { get; set; }
     }
-} 
+}

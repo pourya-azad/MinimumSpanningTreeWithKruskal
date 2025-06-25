@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace MinimumSpanningTreeWithKruskal.ViewModel
+namespace MinimumSpanningTreeWithKruskal.ViewModels
 {
     public class LoginViewModel
     {
@@ -15,4 +15,4 @@ namespace MinimumSpanningTreeWithKruskal.ViewModel
 
         public bool RememberMe { get; set; }
     }
-} 
+}

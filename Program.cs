@@ -1,7 +1,8 @@
-using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using MinimumSpanningTreeWithKruskal.Data;
 using MinimumSpanningTreeWithKruskal.Models;
-using MinimumSpanningTreeWithKruskal.Interfaces;
+using MinimumSpanningTreeWithKruskal.Repositories;
 // Add the required NuGet package reference for EF Core In-Memory Database:
 // Microsoft.EntityFrameworkCore.InMemory
 
@@ -16,8 +17,8 @@ builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
 builder.Services.AddScoped<MinimumSpanningTreeWithKruskal.Interfaces.IGraphService, MinimumSpanningTreeWithKruskal.Services.GraphService>();
 builder.Services.AddScoped<MinimumSpanningTreeWithKruskal.Interfaces.IGraphValidator, MinimumSpanningTreeWithKruskal.Services.GraphValidator>();
 builder.Services.AddScoped<MinimumSpanningTreeWithKruskal.Interfaces.IMSTAlgorithm, MinimumSpanningTreeWithKruskal.Services.KruskalMSTAlgorithm>();
-builder.Services.AddScoped<MinimumSpanningTreeWithKruskal.Interfaces.IGraphRepository, MinimumSpanningTreeWithKruskal.Services.GraphRepository>();
-builder.Services.AddScoped<MinimumSpanningTreeWithKruskal.Interfaces.IMSTRepository, MinimumSpanningTreeWithKruskal.Services.MSTRepository>();
+builder.Services.AddScoped<MinimumSpanningTreeWithKruskal.Interfaces.IGraphRepository, GraphRepository>();
+builder.Services.AddScoped<MinimumSpanningTreeWithKruskal.Interfaces.IMSTRepository, MSTRepository>();
 builder.Services.AddScoped<MinimumSpanningTreeWithKruskal.Interfaces.IGraphInputHandlerService, MinimumSpanningTreeWithKruskal.Services.GraphInputHandlerService>();
 builder.Services.AddScoped<MinimumSpanningTreeWithKruskal.Interfaces.IGraphPersistenceService, MinimumSpanningTreeWithKruskal.Services.GraphPersistenceService>();
 builder.Services.AddControllersWithViews();

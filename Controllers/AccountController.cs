@@ -1,8 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using MinimumSpanningTreeWithKruskal.Models;
-using System.Threading.Tasks;
-using MinimumSpanningTreeWithKruskal.ViewModel;
+using MinimumSpanningTreeWithKruskal.ViewModels;
 
 namespace MinimumSpanningTreeWithKruskal.Controllers
 {
@@ -71,4 +70,4 @@ namespace MinimumSpanningTreeWithKruskal.Controllers
             return RedirectToAction("Login", "Account");
         }
     }
-} 
+}
