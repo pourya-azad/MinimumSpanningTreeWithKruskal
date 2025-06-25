@@ -19,8 +19,9 @@ namespace MinimumSpanningTreeWithKruskal.Controllers
         private readonly IGraphValidator _validator;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IGraphInputHandlerService _inputHandler;
+        private readonly IGraphPersistenceService _persistenceService;
 
-        public GraphController(IGraphRepository graphRepository, IMSTRepository mstRepository, IGraphService service, IGraphValidator validator, UserManager<ApplicationUser> userManager, IGraphInputHandlerService inputHandler)
+        public GraphController(IGraphRepository graphRepository, IMSTRepository mstRepository, IGraphService service, IGraphValidator validator, UserManager<ApplicationUser> userManager, IGraphInputHandlerService inputHandler, IGraphPersistenceService persistenceService)
         {
             _graphRepository = graphRepository;
             _mstRepository = mstRepository;
@@ -28,6 +29,7 @@ namespace MinimumSpanningTreeWithKruskal.Controllers
             _validator = validator;
             _userManager = userManager;
             _inputHandler = inputHandler;
+            _persistenceService = persistenceService;
         }
 
         public ActionResult Index() => View();
@@ -51,63 +53,15 @@ namespace MinimumSpanningTreeWithKruskal.Controllers
             {
                 return Challenge(); // کاربر لاگین نیست
             }
-            var user = _graphRepository.GetUserById(userIdStr);
-            if (user == null)
+            try
             {
-                return Challenge();
+                _persistenceService.SaveGraph(input!, userIdStr);
             }
-            if (_graphRepository.GraphExists(input!.GraphName, userIdStr))
+            catch (Exception ex)
             {
-                ModelState.AddModelError("GraphName", "شما قبلاً گرافی با این نام ثبت کرده‌اید.");
+                ModelState.AddModelError("", ex.Message);
                 return View(model);
             }
-
-            var graph = new Graph
-            {
-                Name = input.GraphName,
-                UserId = userIdStr,
-                ApplicationUser = user
-            };
-            _graphRepository.AddGraph(graph);
-            _graphRepository.SaveChanges(); // تا Graph.Id مقداردهی شود
-
-            // ذخیره نودها
-            var labelToNode = new Dictionary<string, Node>(StringComparer.OrdinalIgnoreCase);
-            foreach (var node in input.Nodes.Where(n => n != null).DistinctBy(n => n.Label))
-            {
-                var newNode = new Node
-                {
-                    Label = node.Label,
-                    GraphId = graph.Id,
-                };
-                _graphRepository.AddNode(newNode);
-                labelToNode[node.Label] = newNode;
-            }
-            _graphRepository.SaveChanges();
-
-            // ذخیره یال‌ها
-            var addedEdges = new HashSet<(int, int)>();
-            foreach (var e in input.Edges.Where(e => e != null))
-            {
-                var node1 = labelToNode[e.Source];
-                var node2 = labelToNode[e.Target];
-                int id1 = node1.Id;
-                int id2 = node2.Id;
-
-                var key = (Math.Min(id1, id2), Math.Max(id1, id2));
-                if (!addedEdges.Contains(key))
-                {
-                    _graphRepository.AddEdge(new Edge
-                    {
-                        Node1Id = key.Item1,
-                        Node2Id = key.Item2,
-                        Weight = e.Weight
-                    });
-                    addedEdges.Add(key);
-                }
-            }
-            _graphRepository.SaveChanges();
-
             return RedirectToAction("Show");
         }
 
@@ -166,29 +120,14 @@ namespace MinimumSpanningTreeWithKruskal.Controllers
             {
                 return Challenge();
             }
-            var graph = _graphRepository.GetGraph(graphId, userIdStr);
-            if (graph == null)
+            try
             {
-                ModelState.AddModelError("GraphName", "گرافی با این آیدی برای حذف یافت نشد.");
-                return RedirectToAction("History");
+                _persistenceService.DeleteGraph(graphId, userIdStr);
             }
-
-            // حذف MSTEdges
-            var mstEdges = _mstRepository.GetMSTEdges(graphId).ToList();
-            _mstRepository.RemoveMSTEdges(mstEdges);
-
-            // حذف Edges
-            var edges = _graphRepository.GetEdges(graphId).ToList();
-            _graphRepository.RemoveEdges(edges);
-
-            // حذف Nodes
-            var nodes = _graphRepository.GetNodes(graphId).ToList();
-            _graphRepository.RemoveNodes(nodes);
-
-            // حذف خود گراف
-            _graphRepository.RemoveGraph(graph);
-
-            _graphRepository.SaveChanges();
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("GraphName", ex.Message);
+            }
             return RedirectToAction("History");
         }
 
