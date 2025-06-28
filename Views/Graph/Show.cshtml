@@ -3,12 +3,10 @@
 @{
     var graphId = (ViewContext.RouteData.Values["graphId"] ?? ViewContext.HttpContext.Request.Query["graphId"]).ToString();
     var showMST = Model.ShowMST;
-    // Serialize nodes as: { id: ..., label: ... }
     var nodesJson = System.Text.Json.JsonSerializer.Serialize(
         Model.Nodes.Select(n => new { id = n.Id, label = n.Label })
     );
 
-    // Serialize edges for both modes
     var allEdgesJson = System.Text.Json.JsonSerializer.Serialize(
         Model.Edges.Select(e => new
         {

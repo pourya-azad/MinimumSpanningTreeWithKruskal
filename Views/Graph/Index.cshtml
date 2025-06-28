@@ -27,9 +27,6 @@
                 <input type="file" id="jsonFile" accept="application/json,.json" class="form-control" onchange="if(this.files[0]) { const reader = new FileReader(); reader.onload = e => document.getElementById('JsonData').value = e.target.result; reader.readAsText(this.files[0]); }">
                 <div class="form-text">پس از انتخاب فایل، محتوای آن به صورت خودکار در کادر زیر قرار می‌گیرد.</div>
             </div>
-            <div class="mb-3">
-                <!-- حذف ValidationMessage("GraphName") -->
-            </div>
             <button type="submit" class="btn btn-primary w-100">ارسال</button>
         }
     </div>
