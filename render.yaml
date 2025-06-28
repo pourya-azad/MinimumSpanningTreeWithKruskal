@@ -4,7 +4,7 @@ services:
     env: dotnet
     plan: free
     buildCommand: dotnet publish -c Release -o out
-    startCommand: dotnet out/YourProjectName.dll
+    startCommand: dotnet out/MinimumSpanningTreeWithKruskal.dll
     envVars:
       - key: ASPNETCORE_ENVIRONMENT
         value: Production
