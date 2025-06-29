@@ -147,8 +147,8 @@ MinimumSpanningTreeWithKruskal/
 ## 📞 تماس
 
 برای سوالات و پیشنهادات:
-- ایمیل: your.email@example.com
-- GitHub Issues: [ایجاد Issue](https://github.com/yourusername/MinimumSpanningTreeWithKruskal/issues)
+- ایمیل: pooria.azad53@gmail.com
+- GitHub Issues: [ایجاد Issue](https://github.com/pouria-azad/MinimumSpanningTreeWithKruskal/issues)
 
 ## 🙏 تشکر
 
