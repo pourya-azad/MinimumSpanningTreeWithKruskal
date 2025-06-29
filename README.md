@@ -65,6 +65,14 @@ MinimumSpanningTreeWithKruskal/
    ```bash
    dotnet ef database update
    ```
+   - یا می‌توانید برای ساخت دیتابیس، به راحتی از فایل `SQLScript/file.sql` استفاده کنید و آن را در SQL Server اجرا نمایید.
+
+   **راهنمای اجرای فایل SQL برای ساخت دیتابیس:**
+   1. نرم‌افزار SQL Server Management Studio (SSMS) را باز کنید.
+   2. به سرور دیتابیس خود متصل شوید.
+   3. از منوی File گزینه Open > File را انتخاب کنید و فایل `SQLScript/file.sql` را باز کنید.
+   4. روی دکمه Execute کلیک کنید تا اسکریپت اجرا و دیتابیس ساخته شود.
+   5. نام دیتابیس ساخته شده را در فایل `appsettings.json` در بخش ConnectionStrings وارد کنید.
 
 4. **اجرای پروژه**
    ```bash
