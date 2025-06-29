@@ -16,6 +16,5 @@ namespace MinimumSpanningTreeWithKruskal.Models
         public virtual ApplicationUser ApplicationUser { get; set; }
 
         public virtual ICollection<Node> NodeAsGraph { get; set; } = new List<Node>();
-
     }
 }

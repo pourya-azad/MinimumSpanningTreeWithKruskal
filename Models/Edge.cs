@@ -5,7 +5,6 @@ namespace MinimumSpanningTreeWithKruskal.Models
 {
     public class Edge
     {
-
         [Key]
         public int Id { get; set; }
 
@@ -13,14 +12,10 @@ namespace MinimumSpanningTreeWithKruskal.Models
         public required int Node2Id { get; set; }
         public int Weight { get; set; }
 
-
-
         [ForeignKey(nameof(Node1Id))]
         public virtual Node Node1 { get; set; }
 
         [ForeignKey(nameof(Node2Id))]
         public virtual Node Node2 { get; set; }
     }
-
-
 }
